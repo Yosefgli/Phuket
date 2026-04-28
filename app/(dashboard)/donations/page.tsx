@@ -36,7 +36,7 @@ export default async function DonationsPage({ searchParams }: Props) {
   let query = supabase
     .from('donations')
     .select(
-      'id, person_id, full_name, phone, email, amount, currency, product, terminal_name, payment_id, payment_date, donor_note, is_recurring, event_id, created_at',
+      'id, person_id, full_name, phone, email, amount, currency, product_name, terminal_name, payment_id, payment_date, donor_note, recurring, created_at',
       { count: 'exact' }
     )
 
@@ -47,7 +47,7 @@ export default async function DonationsPage({ searchParams }: Props) {
   }
   if (searchParams.from) query = query.gte('payment_date', searchParams.from)
   if (searchParams.to) query = query.lte('payment_date', searchParams.to + 'T23:59:59')
-  if (searchParams.product) query = query.ilike('product', `%${searchParams.product}%`)
+  if (searchParams.product) query = query.ilike('product_name', `%${searchParams.product}%`)
   if (searchParams.terminal) query = query.ilike('terminal_name', `%${searchParams.terminal}%`)
   if (searchParams.minAmount) query = query.gte('amount', Number(searchParams.minAmount))
   if (searchParams.maxAmount) query = query.lte('amount', Number(searchParams.maxAmount))
@@ -76,7 +76,7 @@ export default async function DonationsPage({ searchParams }: Props) {
     )
   if (statsFilters.from) statsBase = statsBase.gte('payment_date', statsFilters.from)
   if (statsFilters.to) statsBase = statsBase.lte('payment_date', statsFilters.to + 'T23:59:59')
-  if (statsFilters.product) statsBase = statsBase.ilike('product', `%${statsFilters.product}%`)
+  if (statsFilters.product) statsBase = statsBase.ilike('product_name', `%${statsFilters.product}%`)
   if (statsFilters.terminal) statsBase = statsBase.ilike('terminal_name', `%${statsFilters.terminal}%`)
   if (statsFilters.minAmount) statsBase = statsBase.gte('amount', Number(statsFilters.minAmount))
   if (statsFilters.maxAmount) statsBase = statsBase.lte('amount', Number(statsFilters.maxAmount))

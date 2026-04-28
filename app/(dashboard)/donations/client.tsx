@@ -26,12 +26,12 @@ const CSV_HEADERS: Record<string, string> = {
   email: 'אימייל',
   amount: 'סכום',
   currency: 'מטבע',
-  product: 'מוצר',
+  product_name: 'מוצר',
   terminal_name: 'טרמינל',
   payment_id: 'Payment ID',
   payment_date: 'תאריך תשלום',
   donor_note: 'הערת תורם',
-  is_recurring: 'חוזר',
+  recurring: 'חוזר',
 }
 
 const columns: ColumnDef<Donation>[] = [
@@ -67,7 +67,7 @@ const columns: ColumnDef<Donation>[] = [
     meta: { sortable: true },
   },
   {
-    accessorKey: 'product',
+    accessorKey: 'product_name',
     header: 'מוצר',
     cell: ({ getValue }) => (
       <span className="text-sm text-muted-foreground">{(getValue() as string) ?? '—'}</span>
@@ -96,7 +96,7 @@ const columns: ColumnDef<Donation>[] = [
     meta: { sortable: true },
   },
   {
-    accessorKey: 'is_recurring',
+    accessorKey: 'recurring',
     header: 'חוזר',
     cell: ({ getValue }) =>
       getValue() ? <Badge variant="secondary">חוזר</Badge> : <span className="text-muted-foreground">—</span>,

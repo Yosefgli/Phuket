@@ -16,13 +16,13 @@ export default async function ShabbatDetailPage({ params }: Props) {
   const [shabbatResult, regsResult] = await Promise.all([
     supabase
       .from('shabbatot')
-      .select('id, event_id, name, date, time, location')
+      .select('id, event_id, shabbat, event_date, event_time, location')
       .eq('id', params.id)
       .single(),
     supabase
       .from('event_registrations')
       .select(
-        'id, full_name, phone, email, evening_count, morning_count, is_donor, language, created_at, person_id'
+        'id, full_name, phone, email, reg_evening, reg_morning, reg_donation_success, lang, created_at, person_id'
       )
       .or(
         `shabbat_id.eq.${params.id},event_id.eq.${encodeURIComponent('placeholder')}`
@@ -42,7 +42,7 @@ export default async function ShabbatDetailPage({ params }: Props) {
     const { data } = await supabase
       .from('event_registrations')
       .select(
-        'id, full_name, phone, email, evening_count, morning_count, is_donor, language, created_at, person_id'
+        'id, full_name, phone, email, reg_evening, reg_morning, reg_donation_success, lang, created_at, person_id'
       )
       .or(`shabbat_id.eq.${params.id},event_id.eq.${shabbat.event_id}`)
       .order('created_at', { ascending: false })
@@ -51,22 +51,22 @@ export default async function ShabbatDetailPage({ params }: Props) {
   }
 
   // Compute summary stats
-  const totalEvening = registrations.reduce((s, r) => s + (r.evening_count ?? 0), 0)
-  const totalMorning = registrations.reduce((s, r) => s + (r.morning_count ?? 0), 0)
+  const totalEvening = registrations.reduce((s, r) => s + (r.reg_evening ?? 0), 0)
+  const totalMorning = registrations.reduce((s, r) => s + (r.reg_morning ?? 0), 0)
   const uniquePeople = new Set(registrations.map((r) => r.person_id ?? r.phone ?? r.email).filter(Boolean)).size
-  const donors = registrations.filter((r) => r.is_donor).length
+  const donors = registrations.filter((r) => r.reg_donation_success).length
 
   return (
     <div className="space-y-6">
       {/* Header */}
       <div>
         <div className="flex items-center gap-3 mb-1">
-          <h1 className="text-2xl font-bold">{shabbat.name ?? 'שבת'}</h1>
+          <h1 className="text-2xl font-bold">{shabbat.shabbat ?? 'שבת'}</h1>
           <Badge variant="outline">{shabbat.event_id ?? '—'}</Badge>
         </div>
         <div className="flex gap-4 text-sm text-muted-foreground">
-          {shabbat.date && <span>תאריך: {formatDate(shabbat.date)}</span>}
-          {shabbat.time && <span>שעה: {shabbat.time}</span>}
+          {shabbat.event_date && <span>תאריך: {formatDate(shabbat.event_date)}</span>}
+          {shabbat.event_time && <span>שעה: {shabbat.event_time}</span>}
           {shabbat.location && <span>מיקום: {shabbat.location}</span>}
         </div>
       </div>
@@ -94,7 +94,7 @@ export default async function ShabbatDetailPage({ params }: Props) {
       {/* Registrations table with client-side search */}
       <ShabbatDetailClient
         registrations={registrations}
-        shabbatName={shabbat.name ?? 'שבת'}
+        shabbatName={shabbat.shabbat ?? 'שבת'}
       />
     </div>
   )

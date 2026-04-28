@@ -1,1 +1,2 @@
 2026-04-28 — בנה מערכת ניהול מלאה: Next.js 14 + Supabase + RTL עברית — login, dashboard, shabbatot, registrations, donations, people, payloads, global search (40+ files, build pass)
+- Fix column name mismatches across donations/registrations/shabbatot pages+clients (product→product_name, is_recurring→recurring, evening_count→reg_evening, morning_count→reg_morning, is_donor→reg_donation_success, language→lang, name→shabbat, date→event_date, time→event_time)

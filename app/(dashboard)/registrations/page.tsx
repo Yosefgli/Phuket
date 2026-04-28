@@ -33,7 +33,7 @@ export default async function RegistrationsPage({ searchParams }: Props) {
   let query = supabase
     .from('event_registrations')
     .select(
-      'id, person_id, full_name, phone, email, event_id, shabbat_id, evening_count, morning_count, is_donor, language, location, created_at',
+      'id, person_id, full_name, phone, email, event_id, shabbat_id, reg_evening, reg_morning, reg_donation_success, lang, location, created_at',
       { count: 'exact' }
     )
 
@@ -52,12 +52,12 @@ export default async function RegistrationsPage({ searchParams }: Props) {
     query = query.lte('created_at', searchParams.to + 'T23:59:59')
   }
   if (searchParams.donor === 'true') {
-    query = query.eq('is_donor', true)
+    query = query.eq('reg_donation_success', true)
   } else if (searchParams.donor === 'false') {
-    query = query.eq('is_donor', false)
+    query = query.eq('reg_donation_success', false)
   }
   if (searchParams.language) {
-    query = query.eq('language', searchParams.language)
+    query = query.eq('lang', searchParams.language)
   }
 
   const { data, count, error } = await query
@@ -67,8 +67,8 @@ export default async function RegistrationsPage({ searchParams }: Props) {
   // Get shabbatot list for filter dropdown
   const { data: shabbatot } = await supabase
     .from('shabbatot')
-    .select('event_id, name, date')
-    .order('date', { ascending: false })
+    .select('event_id, shabbat, event_date')
+    .order('event_date', { ascending: false })
     .limit(100)
 
   if (error) {

@@ -1,6 +1,6 @@
 // Auto-generate accurate types with:
-//   npx supabase gen types typescript --project-id <your-project-id> > lib/database.types.ts
-// The types below are a best-effort approximation based on known table structure.
+//   npx supabase gen types typescript --project-id pautliovnrxlepptcgnu > lib/database.types.ts
+// Types below match the actual Supabase schema as of 2026-04-28.
 
 export type Json =
   | string
@@ -15,186 +15,234 @@ export interface Database {
     Tables: {
       people: {
         Row: {
-          id: string
+          id: number
           full_name: string | null
           phone: string | null
           email: string | null
           created_at: string
+          updated_at: string
         }
         Insert: {
-          id?: string
+          id?: number
           full_name?: string | null
           phone?: string | null
           email?: string | null
           created_at?: string
+          updated_at?: string
         }
         Update: {
-          id?: string
+          id?: number
           full_name?: string | null
           phone?: string | null
           email?: string | null
           created_at?: string
+          updated_at?: string
         }
       }
       donations: {
         Row: {
-          id: string
-          person_id: string | null
+          id: number
+          person_id: number | null
           full_name: string | null
           phone: string | null
           email: string | null
           amount: number | null
           currency: string | null
-          product: string | null
+          terminal_id: string | null
           terminal_name: string | null
+          product_name: string | null
+          product_id: string | null
+          low_profile_code: string | null
+          make: string | null
           payment_id: string | null
           payment_date: string | null
           donor_note: string | null
-          is_recurring: boolean | null
-          event_id: string | null
+          recurring: boolean
+          recurring_id: string | null
+          raw_data: Json
           created_at: string
+          updated_at: string
         }
         Insert: {
-          id?: string
-          person_id?: string | null
+          id?: number
+          person_id?: number | null
           full_name?: string | null
           phone?: string | null
           email?: string | null
           amount?: number | null
           currency?: string | null
-          product?: string | null
+          terminal_id?: string | null
           terminal_name?: string | null
+          product_name?: string | null
+          product_id?: string | null
+          low_profile_code?: string | null
+          make?: string | null
           payment_id?: string | null
           payment_date?: string | null
           donor_note?: string | null
-          is_recurring?: boolean | null
-          event_id?: string | null
+          recurring?: boolean
+          recurring_id?: string | null
+          raw_data?: Json
           created_at?: string
+          updated_at?: string
         }
         Update: {
-          id?: string
-          person_id?: string | null
+          id?: number
+          person_id?: number | null
           full_name?: string | null
           phone?: string | null
           email?: string | null
           amount?: number | null
           currency?: string | null
-          product?: string | null
+          terminal_id?: string | null
           terminal_name?: string | null
+          product_name?: string | null
+          product_id?: string | null
+          low_profile_code?: string | null
+          make?: string | null
           payment_id?: string | null
           payment_date?: string | null
           donor_note?: string | null
-          is_recurring?: boolean | null
-          event_id?: string | null
+          recurring?: boolean
+          recurring_id?: string | null
+          raw_data?: Json
           created_at?: string
+          updated_at?: string
         }
       }
       event_registrations: {
         Row: {
-          id: string
-          person_id: string | null
-          event_id: string | null
-          shabbat_id: string | null
+          id: number
+          person_id: number | null
+          shabbat_id: number | null
           full_name: string | null
           phone: string | null
           email: string | null
-          evening_count: number | null
-          morning_count: number | null
-          is_donor: boolean | null
-          language: string | null
+          shabbat: string | null
+          event_id: string | null
+          lang: string | null
           location: string | null
+          event_date: string | null
+          event_time: string | null
+          reg_evening: number | null
+          reg_morning: number | null
+          reg_donation_success: boolean
+          raw_data: Json
           created_at: string
+          updated_at: string
         }
         Insert: {
-          id?: string
-          person_id?: string | null
-          event_id?: string | null
-          shabbat_id?: string | null
+          id?: number
+          person_id?: number | null
+          shabbat_id?: number | null
           full_name?: string | null
           phone?: string | null
           email?: string | null
-          evening_count?: number | null
-          morning_count?: number | null
-          is_donor?: boolean | null
-          language?: string | null
+          shabbat?: string | null
+          event_id?: string | null
+          lang?: string | null
           location?: string | null
+          event_date?: string | null
+          event_time?: string | null
+          reg_evening?: number | null
+          reg_morning?: number | null
+          reg_donation_success?: boolean
+          raw_data?: Json
           created_at?: string
+          updated_at?: string
         }
         Update: {
-          id?: string
-          person_id?: string | null
-          event_id?: string | null
-          shabbat_id?: string | null
+          id?: number
+          person_id?: number | null
+          shabbat_id?: number | null
           full_name?: string | null
           phone?: string | null
           email?: string | null
-          evening_count?: number | null
-          morning_count?: number | null
-          is_donor?: boolean | null
-          language?: string | null
+          shabbat?: string | null
+          event_id?: string | null
+          lang?: string | null
           location?: string | null
+          event_date?: string | null
+          event_time?: string | null
+          reg_evening?: number | null
+          reg_morning?: number | null
+          reg_donation_success?: boolean
+          raw_data?: Json
           created_at?: string
+          updated_at?: string
         }
       }
       shabbatot: {
         Row: {
-          id: string
-          event_id: string | null
-          name: string | null
-          date: string | null
-          time: string | null
+          id: number
+          event_id: string
+          shabbat: string | null
+          lang: string | null
           location: string | null
+          event_date: string | null
+          event_time: string | null
+          raw_data: Json
           created_at: string
+          updated_at: string
         }
         Insert: {
-          id?: string
-          event_id?: string | null
-          name?: string | null
-          date?: string | null
-          time?: string | null
+          id?: number
+          event_id: string
+          shabbat?: string | null
+          lang?: string | null
           location?: string | null
+          event_date?: string | null
+          event_time?: string | null
+          raw_data?: Json
           created_at?: string
+          updated_at?: string
         }
         Update: {
-          id?: string
-          event_id?: string | null
-          name?: string | null
-          date?: string | null
-          time?: string | null
+          id?: number
+          event_id?: string
+          shabbat?: string | null
+          lang?: string | null
           location?: string | null
+          event_date?: string | null
+          event_time?: string | null
+          raw_data?: Json
           created_at?: string
+          updated_at?: string
         }
       }
       incoming_payloads: {
         Row: {
-          id: string
-          created_at: string
+          id: number
+          payload: Json
           payload_type: string | null
-          processed: boolean | null
+          processed: boolean
+          processed_at: string | null
           target_table: string | null
-          target_id: string | null
+          target_id: number | null
           error_message: string | null
-          payload: Json | null
+          created_at: string
         }
         Insert: {
-          id?: string
-          created_at?: string
+          id?: number
+          payload: Json
           payload_type?: string | null
-          processed?: boolean | null
+          processed?: boolean
+          processed_at?: string | null
           target_table?: string | null
-          target_id?: string | null
+          target_id?: number | null
           error_message?: string | null
-          payload?: Json | null
+          created_at?: string
         }
         Update: {
-          id?: string
-          created_at?: string
+          id?: number
+          payload?: Json
           payload_type?: string | null
-          processed?: boolean | null
+          processed?: boolean
+          processed_at?: string | null
           target_table?: string | null
-          target_id?: string | null
+          target_id?: number | null
           error_message?: string | null
-          payload?: Json | null
+          created_at?: string
         }
       }
     }

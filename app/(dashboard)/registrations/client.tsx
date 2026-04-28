@@ -18,7 +18,7 @@ interface Props {
   totalCount: number
   page: number
   pageSize: number
-  shabbatot: { event_id: string | null; name: string | null; date: string | null }[]
+  shabbatot: { event_id: string | null; shabbat: string | null; event_date: string | null }[]
   filters: Record<string, string | undefined>
 }
 
@@ -27,10 +27,10 @@ const CSV_HEADERS: Record<string, string> = {
   phone: 'טלפון',
   email: 'אימייל',
   event_id: 'Event ID',
-  evening_count: 'ערב',
-  morning_count: 'בוקר',
-  is_donor: 'תרם',
-  language: 'שפה',
+  reg_evening: 'ערב',
+  reg_morning: 'בוקר',
+  reg_donation_success: 'תרם',
+  lang: 'שפה',
   location: 'מיקום',
   created_at: 'תאריך יצירה',
 }
@@ -62,25 +62,25 @@ const columns: ColumnDef<EventRegistration>[] = [
     ),
   },
   {
-    accessorKey: 'evening_count',
+    accessorKey: 'reg_evening',
     header: 'ערב',
     cell: ({ getValue }) => <span className="text-center block">{(getValue() as number) ?? 0}</span>,
     meta: { sortable: true },
   },
   {
-    accessorKey: 'morning_count',
+    accessorKey: 'reg_morning',
     header: 'בוקר',
     cell: ({ getValue }) => <span className="text-center block">{(getValue() as number) ?? 0}</span>,
     meta: { sortable: true },
   },
   {
-    accessorKey: 'is_donor',
+    accessorKey: 'reg_donation_success',
     header: 'תרומה',
     cell: ({ getValue }) =>
       getValue() ? <Badge variant="success">כן</Badge> : <span className="text-muted-foreground">—</span>,
   },
   {
-    accessorKey: 'language',
+    accessorKey: 'lang',
     header: 'שפה',
     cell: ({ getValue }) => <span className="text-muted-foreground">{(getValue() as string) ?? '—'}</span>,
   },
@@ -156,7 +156,7 @@ export function RegistrationsClient({ data, totalCount, page, pageSize, shabbato
                 {shabbatot.map((s) =>
                   s.event_id ? (
                     <SelectItem key={s.event_id} value={s.event_id}>
-                      {s.name ?? s.event_id}
+                      {s.shabbat ?? s.event_id}
                     </SelectItem>
                   ) : null
                 )}

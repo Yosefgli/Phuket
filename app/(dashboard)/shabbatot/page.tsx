@@ -10,8 +10,8 @@ export default async function ShabbatotPage() {
 
   const { data: shabbatot, error } = await supabase
     .from('shabbatot')
-    .select('id, event_id, name, date, time, location, created_at')
-    .order('date', { ascending: false })
+    .select('id, event_id, shabbat, event_date, event_time, location, created_at')
+    .order('event_date', { ascending: false })
     .limit(200)
 
   if (error) {
@@ -42,7 +42,7 @@ export default async function ShabbatotPage() {
 
   const { data: regCounts } = await supabase
     .from('event_registrations')
-    .select('event_id, evening_count, morning_count, person_id, is_donor')
+    .select('event_id, reg_evening, reg_morning, person_id, reg_donation_success')
     .in('event_id', eventIds.length > 0 ? eventIds : ['__none__'])
     .limit(10000)
 
@@ -57,10 +57,10 @@ export default async function ShabbatotPage() {
     if (!regByEvent[reg.event_id]) {
       regByEvent[reg.event_id] = { evening: 0, morning: 0, uniquePeople: new Set(), donors: 0 }
     }
-    regByEvent[reg.event_id].evening += reg.evening_count ?? 0
-    regByEvent[reg.event_id].morning += reg.morning_count ?? 0
+    regByEvent[reg.event_id].evening += reg.reg_evening ?? 0
+    regByEvent[reg.event_id].morning += reg.reg_morning ?? 0
     if (reg.person_id) regByEvent[reg.event_id].uniquePeople.add(reg.person_id)
-    if (reg.is_donor) regByEvent[reg.event_id].donors += 1
+    if (reg.reg_donation_success) regByEvent[reg.event_id].donors += 1
   }
 
   const today = new Date().toISOString().slice(0, 10)
@@ -93,8 +93,8 @@ export default async function ShabbatotPage() {
           <tbody>
             {shabbatot.map((shabbat) => {
               const stats = shabbat.event_id ? regByEvent[shabbat.event_id] : undefined
-              const isPast = shabbat.date ? shabbat.date < today : false
-              const isUpcoming = shabbat.date ? shabbat.date >= today : false
+              const isPast = shabbat.event_date ? shabbat.event_date < today : false
+              const isUpcoming = shabbat.event_date ? shabbat.event_date >= today : false
 
               return (
                 <tr
@@ -108,17 +108,17 @@ export default async function ShabbatotPage() {
                           קרובה
                         </Badge>
                       )}
-                      {shabbat.name ?? '—'}
+                      {shabbat.shabbat ?? '—'}
                     </div>
                   </td>
                   <td className="px-4 py-3 text-muted-foreground font-mono text-xs">
                     {shabbat.event_id ?? '—'}
                   </td>
                   <td className="px-4 py-3">
-                    {shabbat.date ? formatDate(shabbat.date) : '—'}
+                    {shabbat.event_date ? formatDate(shabbat.event_date) : '—'}
                   </td>
                   <td className="px-4 py-3 text-muted-foreground">
-                    {shabbat.time ?? '—'}
+                    {shabbat.event_time ?? '—'}
                   </td>
                   <td className="px-4 py-3 text-muted-foreground">
                     {shabbat.location ?? '—'}

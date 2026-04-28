@@ -9,16 +9,16 @@ import { PhoneCell } from '@/components/phone-cell'
 import { formatDateTime, exportToCsv } from '@/lib/utils'
 
 interface Registration {
-  id: string
+  id: number
   full_name: string | null
   phone: string | null
   email: string | null
-  evening_count: number | null
-  morning_count: number | null
-  is_donor: boolean | null
-  language: string | null
+  reg_evening: number | null
+  reg_morning: number | null
+  reg_donation_success: boolean
+  lang: string | null
   created_at: string
-  person_id: string | null
+  person_id: number | null
 }
 
 interface Props {
@@ -48,15 +48,15 @@ export function ShabbatDetailClient({ registrations, shabbatName }: Props) {
         full_name: 'שם מלא',
         phone: 'טלפון',
         email: 'אימייל',
-        evening_count: 'כמות לערב',
-        morning_count: 'כמות לבוקר',
-        is_donor: 'האם תרם',
-        language: 'שפה',
+        reg_evening: 'כמות לערב',
+        reg_morning: 'כמות לבוקר',
+        reg_donation_success: 'האם תרם',
+        lang: 'שפה',
         created_at: 'תאריך הרשמה',
       },
       filtered.map((r) => ({
         ...r,
-        is_donor: r.is_donor ? 'כן' : 'לא',
+        reg_donation_success: r.reg_donation_success ? 'כן' : 'לא',
         created_at: formatDateTime(r.created_at),
       }))
     )
@@ -112,16 +112,16 @@ export function ShabbatDetailClient({ registrations, shabbatName }: Props) {
                     <PhoneCell phone={reg.phone} />
                   </td>
                   <td className="px-4 py-3 text-muted-foreground text-xs">{reg.email ?? '—'}</td>
-                  <td className="px-4 py-3 text-center">{reg.evening_count ?? 0}</td>
-                  <td className="px-4 py-3 text-center">{reg.morning_count ?? 0}</td>
+                  <td className="px-4 py-3 text-center">{reg.reg_evening ?? 0}</td>
+                  <td className="px-4 py-3 text-center">{reg.reg_morning ?? 0}</td>
                   <td className="px-4 py-3 text-center">
-                    {reg.is_donor ? (
+                    {reg.reg_donation_success ? (
                       <Badge variant="success">כן</Badge>
                     ) : (
                       <span className="text-muted-foreground">—</span>
                     )}
                   </td>
-                  <td className="px-4 py-3 text-muted-foreground">{reg.language ?? '—'}</td>
+                  <td className="px-4 py-3 text-muted-foreground">{reg.lang ?? '—'}</td>
                   <td className="px-4 py-3 text-muted-foreground text-xs">
                     {formatDateTime(reg.created_at)}
                   </td>
