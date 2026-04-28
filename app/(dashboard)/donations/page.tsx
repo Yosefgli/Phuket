@@ -20,6 +20,13 @@ interface Props {
   }
 }
 
+interface DonationStats {
+  sum: number
+  count: number
+  avg: number
+  max: number
+}
+
 export default async function DonationsPage({ searchParams }: Props) {
   const supabase = createClient()
 
@@ -49,42 +56,21 @@ export default async function DonationsPage({ searchParams }: Props) {
   if (searchParams.minAmount) query = query.gte('amount', Number(searchParams.minAmount))
   if (searchParams.maxAmount) query = query.lte('amount', Number(searchParams.maxAmount))
 
-  const { data, count, error } = await query
-    .order(sortCol, { ascending: sortAsc })
-    .range(from, to)
+  // Run paginated data + aggregate stats in parallel
+  const [{ data, count, error }, { data: statsRaw }] = await Promise.all([
+    query.order(sortCol, { ascending: sortAsc }).range(from, to),
+    supabase.rpc('get_donation_stats', {
+      p_search:     searchParams.search     ?? null,
+      p_from:       searchParams.from       ?? null,
+      p_to:         searchParams.to         ?? null,
+      p_product:    searchParams.product    ?? null,
+      p_terminal:   searchParams.terminal   ?? null,
+      p_min_amount: searchParams.minAmount  ? Number(searchParams.minAmount)  : null,
+      p_max_amount: searchParams.maxAmount  ? Number(searchParams.maxAmount)  : null,
+    }),
+  ])
 
-  // Stats for current filtered data — derive from already-fetched page data
-  // For accurate totals across all pages, compute from the paged query's full count
-  // and re-fetch amounts with same filters
-  const statsFilters: Record<string, string | undefined> = {
-    search: searchParams.search,
-    from: searchParams.from,
-    to: searchParams.to,
-    product: searchParams.product,
-    terminal: searchParams.terminal,
-    minAmount: searchParams.minAmount,
-    maxAmount: searchParams.maxAmount,
-  }
-
-  let statsBase = supabase.from('donations').select('amount')
-  if (statsFilters.search)
-    statsBase = statsBase.or(
-      `full_name.ilike.%${statsFilters.search}%,phone.ilike.%${statsFilters.search}%,email.ilike.%${statsFilters.search}%,payment_id.ilike.%${statsFilters.search}%`
-    )
-  if (statsFilters.from) statsBase = statsBase.gte('payment_date', statsFilters.from)
-  if (statsFilters.to) statsBase = statsBase.lte('payment_date', statsFilters.to + 'T23:59:59')
-  if (statsFilters.product) statsBase = statsBase.ilike('product_name', `%${statsFilters.product}%`)
-  if (statsFilters.terminal) statsBase = statsBase.ilike('terminal_name', `%${statsFilters.terminal}%`)
-  if (statsFilters.minAmount) statsBase = statsBase.gte('amount', Number(statsFilters.minAmount))
-  if (statsFilters.maxAmount) statsBase = statsBase.lte('amount', Number(statsFilters.maxAmount))
-
-  const { data: allAmounts } = await statsBase.limit(10000)
-
-  const amounts = (allAmounts ?? []).map((d: { amount: number | null }) => d.amount ?? 0)
-  const totalSum = amounts.reduce((s, a) => s + a, 0)
-  const totalCount = amounts.length
-  const avg = totalCount > 0 ? totalSum / totalCount : 0
-  const max = amounts.length > 0 ? Math.max(...amounts) : 0
+  const stats = (statsRaw ?? { sum: 0, count: 0, avg: 0, max: 0 }) as DonationStats
 
   if (error) {
     return (
@@ -104,12 +90,11 @@ export default async function DonationsPage({ searchParams }: Props) {
         <p className="text-muted-foreground">כל התרומות והתשלומים</p>
       </div>
 
-      {/* Stats */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        <StatCard title="סך תרומות" value={formatCurrency(totalSum)} icon={Heart} />
-        <StatCard title="מספר תרומות" value={totalCount.toLocaleString('he-IL')} icon={Hash} />
-        <StatCard title="ממוצע תרומה" value={formatCurrency(avg)} icon={TrendingUp} />
-        <StatCard title="תרומה מקסימלית" value={formatCurrency(max)} icon={ArrowUp} />
+        <StatCard title="סך תרומות"        value={formatCurrency(stats.sum)}   icon={Heart} />
+        <StatCard title="מספר תרומות"      value={Number(stats.count).toLocaleString('he-IL')} icon={Hash} />
+        <StatCard title="ממוצע תרומה"      value={formatCurrency(stats.avg)}   icon={TrendingUp} />
+        <StatCard title="תרומה מקסימלית"  value={formatCurrency(stats.max)}   icon={ArrowUp} />
       </div>
 
       <DonationsClient

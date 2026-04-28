@@ -11,6 +11,13 @@ interface Props {
   }
 }
 
+interface PersonStat {
+  person_id: number
+  donation_count: number
+  donation_sum: number
+  registration_count: number
+}
+
 export default async function PeoplePage({ searchParams }: Props) {
   const supabase = createClient()
 
@@ -48,47 +55,23 @@ export default async function PeoplePage({ searchParams }: Props) {
     )
   }
 
-  // Get donation/registration counts for this page of people
   const personIds = (people ?? []).map((p) => p.id)
 
-  const [donationsCountResult, regsCountResult] = await Promise.all([
-    personIds.length > 0
-      ? supabase
-          .from('donations')
-          .select('person_id, amount')
-          .in('person_id', personIds)
-          .limit(5000)
-      : Promise.resolve({ data: [] as { person_id: string | null; amount: number | null }[], error: null }),
-    personIds.length > 0
-      ? supabase
-          .from('event_registrations')
-          .select('person_id')
-          .in('person_id', personIds)
-          .limit(5000)
-      : Promise.resolve({ data: [] as { person_id: string | null }[], error: null }),
-  ])
-
-  const donationsByPerson: Record<string, { count: number; sum: number }> = {}
-  for (const d of donationsCountResult.data ?? []) {
-    if (!d.person_id) continue
-    if (!donationsByPerson[d.person_id]) {
-      donationsByPerson[d.person_id] = { count: 0, sum: 0 }
+  let statsMap: Record<number, PersonStat> = {}
+  if (personIds.length > 0) {
+    const { data: statsRows } = await supabase.rpc('get_people_stats', {
+      p_person_ids: personIds,
+    })
+    for (const row of (statsRows ?? []) as PersonStat[]) {
+      statsMap[row.person_id] = row
     }
-    donationsByPerson[d.person_id].count += 1
-    donationsByPerson[d.person_id].sum += d.amount ?? 0
-  }
-
-  const regsByPerson: Record<string, number> = {}
-  for (const r of regsCountResult.data ?? []) {
-    if (!r.person_id) continue
-    regsByPerson[r.person_id] = (regsByPerson[r.person_id] ?? 0) + 1
   }
 
   const enrichedPeople = (people ?? []).map((p) => ({
     ...p,
-    donation_count: donationsByPerson[p.id]?.count ?? 0,
-    donation_sum: donationsByPerson[p.id]?.sum ?? 0,
-    registration_count: regsByPerson[p.id] ?? 0,
+    donation_count:    statsMap[p.id]?.donation_count    ?? 0,
+    donation_sum:      statsMap[p.id]?.donation_sum      ?? 0,
+    registration_count: statsMap[p.id]?.registration_count ?? 0,
   }))
 
   return (

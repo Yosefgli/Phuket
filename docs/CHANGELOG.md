@@ -5,3 +5,4 @@
 2026-04-28: fix payloads page.tsx select('*') — added missing processed_at to select, resolves Vercel build type error
 2026-04-28 — fix registrations/page.tsx: changed partial select to select('*') to match EventRegistration type, resolves Vercel build type error
 - fix people/[id]/page.tsx: corrected column names (product_name, recurring, reg_evening, reg_morning, reg_donation_success, lang, shabbat.shabbat, shabbat.event_date) — donations and registrations were returning empty due to wrong column names in select
+2026-04-28: perf — replaced large row fetches with 4 Postgres aggregate RPCs (get_dashboard_stats, get_donation_stats, get_people_stats, get_shabbat_reg_stats); dashboard now 1 round-trip instead of 7; also fixed bug: shabbatot name/date columns were wrong in dashboard

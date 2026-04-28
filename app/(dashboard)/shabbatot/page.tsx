@@ -5,6 +5,14 @@ import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import Link from 'next/link'
 
+interface ShabbatRegStat {
+  event_id: string
+  evening_total: number
+  morning_total: number
+  unique_people: number
+  donors: number
+}
+
 export default async function ShabbatotPage() {
   const supabase = createClient()
 
@@ -37,30 +45,16 @@ export default async function ShabbatotPage() {
     )
   }
 
-  // For each shabbat, get registration counts
   const eventIds = shabbatot.map((s) => s.event_id).filter(Boolean) as string[]
 
-  const { data: regCounts } = await supabase
-    .from('event_registrations')
-    .select('event_id, reg_evening, reg_morning, person_id, reg_donation_success')
-    .in('event_id', eventIds.length > 0 ? eventIds : ['__none__'])
-    .limit(10000)
-
-  // Build lookup by event_id
-  const regByEvent: Record<
-    string,
-    { evening: number; morning: number; uniquePeople: Set<string>; donors: number }
-  > = {}
-
-  for (const reg of regCounts ?? []) {
-    if (!reg.event_id) continue
-    if (!regByEvent[reg.event_id]) {
-      regByEvent[reg.event_id] = { evening: 0, morning: 0, uniquePeople: new Set(), donors: 0 }
+  const regByEvent: Record<string, ShabbatRegStat> = {}
+  if (eventIds.length > 0) {
+    const { data: statsRows } = await supabase.rpc('get_shabbat_reg_stats', {
+      p_event_ids: eventIds,
+    })
+    for (const row of (statsRows ?? []) as ShabbatRegStat[]) {
+      regByEvent[row.event_id] = row
     }
-    regByEvent[reg.event_id].evening += reg.reg_evening ?? 0
-    regByEvent[reg.event_id].morning += reg.reg_morning ?? 0
-    if (reg.person_id) regByEvent[reg.event_id].uniquePeople.add(reg.person_id)
-    if (reg.reg_donation_success) regByEvent[reg.event_id].donors += 1
   }
 
   const today = new Date().toISOString().slice(0, 10)
@@ -93,7 +87,6 @@ export default async function ShabbatotPage() {
           <tbody>
             {shabbatot.map((shabbat) => {
               const stats = shabbat.event_id ? regByEvent[shabbat.event_id] : undefined
-              const isPast = shabbat.event_date ? shabbat.event_date < today : false
               const isUpcoming = shabbat.event_date ? shabbat.event_date >= today : false
 
               return (
@@ -124,16 +117,16 @@ export default async function ShabbatotPage() {
                     {shabbat.location ?? '—'}
                   </td>
                   <td className="px-4 py-3 text-center font-medium">
-                    {stats?.evening ?? 0}
+                    {stats?.evening_total ?? 0}
                   </td>
                   <td className="px-4 py-3 text-center font-medium">
-                    {stats?.morning ?? 0}
+                    {stats?.morning_total ?? 0}
                   </td>
                   <td className="px-4 py-3 text-center font-bold text-primary">
-                    {(stats?.evening ?? 0) + (stats?.morning ?? 0)}
+                    {(stats?.evening_total ?? 0) + (stats?.morning_total ?? 0)}
                   </td>
                   <td className="px-4 py-3 text-center">
-                    {stats?.uniquePeople.size ?? 0}
+                    {stats?.unique_people ?? 0}
                   </td>
                   <td className="px-4 py-3 text-center">
                     <Button variant="outline" size="sm" asChild>
