@@ -1,0 +1,3 @@
+- להחליף database.types.ts עם טיפוסים אמיתיים מ-`supabase gen types typescript`
+- להגדיר .env.local עם NEXT_PUBLIC_SUPABASE_URL ו-NEXT_PUBLIC_SUPABASE_ANON_KEY
+- להריץ docs/setup.sql ב-Supabase SQL Editor (RLS + indexes + RPC functions)
