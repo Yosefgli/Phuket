@@ -35,10 +35,7 @@ export default async function DonationsPage({ searchParams }: Props) {
   // Build filtered query
   let query = supabase
     .from('donations')
-    .select(
-      'id, person_id, full_name, phone, email, amount, currency, product_name, terminal_name, payment_id, payment_date, donor_note, recurring, created_at',
-      { count: 'exact' }
-    )
+    .select('*', { count: 'exact' })
 
   if (searchParams.search) {
     query = query.or(
