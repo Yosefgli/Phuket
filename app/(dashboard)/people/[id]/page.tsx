@@ -30,13 +30,13 @@ export default async function PersonDetailPage({ params }: Props) {
   const [donationsResult, registrationsResult] = await Promise.all([
     supabase
       .from('donations')
-      .select('id, amount, currency, product, terminal_name, payment_id, payment_date, donor_note, is_recurring')
+      .select('id, amount, currency, product_name, terminal_name, payment_id, payment_date, donor_note, recurring')
       .eq('person_id', params.id)
       .order('payment_date', { ascending: false })
       .limit(100),
     supabase
       .from('event_registrations')
-      .select('id, event_id, shabbat_id, evening_count, morning_count, is_donor, language, location, created_at')
+      .select('id, event_id, shabbat_id, reg_evening, reg_morning, reg_donation_success, lang, location, created_at')
       .eq('person_id', params.id)
       .order('created_at', { ascending: false })
       .limit(100),
@@ -51,7 +51,7 @@ export default async function PersonDetailPage({ params }: Props) {
 
   const { data: shabbatot } = await supabase
     .from('shabbatot')
-    .select('id, event_id, name, date')
+    .select('id, event_id, shabbat, event_date')
     .or(
       [
         shabbatIds.length > 0 ? `id.in.(${shabbatIds.join(',')})` : null,
@@ -139,7 +139,7 @@ export default async function PersonDetailPage({ params }: Props) {
                           <span className="text-xs text-muted-foreground ms-1">({d.currency})</span>
                         )}
                       </td>
-                      <td className="px-4 py-3 text-muted-foreground">{d.product ?? '—'}</td>
+                      <td className="px-4 py-3 text-muted-foreground">{d.product_name ?? '—'}</td>
                       <td className="px-4 py-3 font-mono text-xs text-muted-foreground">
                         {d.payment_id ?? '—'}
                       </td>
@@ -150,7 +150,7 @@ export default async function PersonDetailPage({ params }: Props) {
                         {d.donor_note ?? '—'}
                       </td>
                       <td className="px-4 py-3 text-center">
-                        {d.is_recurring ? <Badge variant="secondary">כן</Badge> : '—'}
+                        {d.recurring ? <Badge variant="secondary">כן</Badge> : '—'}
                       </td>
                     </tr>
                   ))}
@@ -192,9 +192,9 @@ export default async function PersonDetailPage({ params }: Props) {
                         <td className="px-4 py-3">
                           {shabbat ? (
                             <div>
-                              <p className="font-medium">{shabbat.name}</p>
+                              <p className="font-medium">{shabbat.shabbat}</p>
                               <p className="text-xs text-muted-foreground">
-                                {shabbat.date ? formatDate(shabbat.date) : r.event_id}
+                                {shabbat.event_date ? formatDate(shabbat.event_date) : r.event_id}
                               </p>
                             </div>
                           ) : (
@@ -203,12 +203,12 @@ export default async function PersonDetailPage({ params }: Props) {
                             </span>
                           )}
                         </td>
-                        <td className="px-4 py-3 text-center">{r.evening_count ?? 0}</td>
-                        <td className="px-4 py-3 text-center">{r.morning_count ?? 0}</td>
+                        <td className="px-4 py-3 text-center">{r.reg_evening ?? 0}</td>
+                        <td className="px-4 py-3 text-center">{r.reg_morning ?? 0}</td>
                         <td className="px-4 py-3 text-center">
-                          {r.is_donor ? <Badge variant="success">כן</Badge> : '—'}
+                          {r.reg_donation_success ? <Badge variant="secondary">כן</Badge> : '—'}
                         </td>
-                        <td className="px-4 py-3 text-muted-foreground">{r.language ?? '—'}</td>
+                        <td className="px-4 py-3 text-muted-foreground">{r.lang ?? '—'}</td>
                         <td className="px-4 py-3 text-xs text-muted-foreground">
                           {formatDateTime(r.created_at)}
                         </td>
