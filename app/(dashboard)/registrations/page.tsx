@@ -32,10 +32,7 @@ export default async function RegistrationsPage({ searchParams }: Props) {
   // Build query
   let query = supabase
     .from('event_registrations')
-    .select(
-      'id, person_id, full_name, phone, email, event_id, shabbat_id, reg_evening, reg_morning, reg_donation_success, lang, location, created_at',
-      { count: 'exact' }
-    )
+    .select('*', { count: 'exact' })
 
   if (searchParams.search) {
     query = query.or(

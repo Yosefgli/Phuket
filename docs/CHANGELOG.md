@@ -3,3 +3,4 @@
 
 2026-04-28: fix donations page.tsx select('*') to match full Donation type — resolves Vercel build type error
 2026-04-28: fix payloads page.tsx select('*') — added missing processed_at to select, resolves Vercel build type error
+2026-04-28 — fix registrations/page.tsx: changed partial select to select('*') to match EventRegistration type, resolves Vercel build type error
