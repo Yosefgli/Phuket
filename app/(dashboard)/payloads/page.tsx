@@ -30,10 +30,7 @@ export default async function PayloadsPage({ searchParams }: Props) {
 
   let query = supabase
     .from('incoming_payloads')
-    .select(
-      'id, created_at, payload_type, processed, target_table, target_id, error_message, payload',
-      { count: 'exact' }
-    )
+    .select('*', { count: 'exact' })
 
   if (searchParams.errorsOnly === 'true') {
     query = query.not('error_message', 'is', null)
